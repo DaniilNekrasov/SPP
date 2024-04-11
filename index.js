@@ -159,7 +159,6 @@ server.on("connection", function connection(ws) {
 
 function broadcastMessage(message) {
   server.clients.forEach((client) => {
-    console.log("+");
     client.send(JSON.stringify(message));
   });
 }

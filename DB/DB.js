@@ -146,7 +146,17 @@ class DBrequest {
             },
           },
           include: {
-            user: true, // Включить информацию о пользователях чатов
+            user: {
+              where: {
+                NOT: { id: userId },
+              },
+            }, // Включить информацию о пользователях чатов
+            message: {
+              orderBy: {
+                date: "desc",
+              },
+              take: 1, // Взять только одно последнее сообщение
+            },
           },
         }),
       "Getting dialogs error"
@@ -173,6 +183,7 @@ class DBrequest {
               create: {
                 senderId: id1, // Определяем отправителя первым пользователем
                 text: "Начало диалога", // Начальное сообщение
+                date: new Date(Date.now()).toISOString(),
               },
             },
           },
