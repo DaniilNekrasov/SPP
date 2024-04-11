@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int            @id @unique @default(autoincrement())
+  email        String         @unique
+  login        String         @unique
+  status       String
+  lastOnline   DateTime       @default(now())
+  avatarURL    String?
+  password     String
+  posts        Post[]
+  chat         Chat[]
+  comment      Comment[]
+  commentLike  CommentLike[]
+  message      Message[]
+  postLike     PostLike[]
+  subscription Subscription[] @relation("subscriber")
+  subscribers  Subscription[] @relation("subscribedTo")
+}
+
+model Post {
+  id        Int        @id @default(autoincrement())
+  title     String
+  content   String?
+  published Boolean    @default(false)
+  author    User?      @relation(fields: [authorId], references: [id])
+  authorId  Int?
+  date      DateTime   @updatedAt
+  postLike  PostLike[]
+}
+
+model Comment {
+  id          Int           @id @default(autoincrement())
+  text        String
+  isDraft     Boolean
+  date        DateTime      @updatedAt
+  author      User          @relation(fields: [userId], references: [id])
+  userId      Int
+  commentLike CommentLike[]
+}
+
+model CommentLike {
+  id        Int      @id @default(autoincrement())
+  rate      Boolean?
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  CommentId Comment  @relation(fields: [commentId], references: [id])
+  commentId Int
+}
+
+model PostLike {
+  id     Int      @id @default(autoincrement())
+  rate   Boolean?
+  user   User     @relation(fields: [userId], references: [id])
+  userId Int
+  post   Post     @relation(fields: [postId], references: [id])
+  postId Int
+}
+
+model Chat {
+  id      Int       @id @default(autoincrement())
+  user    User[]
+  message Message[]
+}
+
+model Message {
+  id       Int       @id @default(autoincrement())
+  sender   User      @relation(fields: [senderId], references: [id])
+  chat     Chat      @relation(fields: [chatId], references: [id])
+  date     DateTime?
+  senderId Int
+  chatId   Int
+  text     String
+}
+
+model Subscription {
+  id             Int  @id @default(autoincrement())
+  subscriber     User @relation("subscriber", fields: [subscriberId], references: [id])
+  subscribedTo   User @relation("subscribedTo", fields: [subscribedToId], references: [id])
+  subscriberId   Int
+  subscribedToId Int
+}
+
+//npx prisma migrate dev --name add-avatarURL
