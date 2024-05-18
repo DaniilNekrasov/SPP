@@ -61,12 +61,22 @@ class ProfileController {
   async createPost(req, res) {
     try {
       const userId = req.query.userId;
-      const { content, date, title } = req.body;
+      const { title, content, date } = req.body;
+      const { files } = req;
       const candidate = await findUser(userId * 1);
       if (!candidate) {
         return res.status(400).json({ message: "Profile doesnt exist" });
       }
-      await DBrequest.createPost(userId * 1, content, date, title);
+      let post = await DBrequest.createPost(
+        userId * 1,
+        content,
+        date,
+        title,
+        files
+      );
+      for (const file of files) {
+        DBrequest.saveFiles(post.id, file);
+      }
       let posts = await DBrequest.getPosts(userId * 1);
       res.json(posts);
     } catch (e) {
@@ -74,9 +84,11 @@ class ProfileController {
       res.status(400).json({ message: e });
     }
   }
+
   async deletePost(req, res) {
     try {
       let { postId } = req.query;
+      await DBrequest.deleteFiles(postId * 1);
       await DBrequest.deletePost(postId * 1);
       res.json({ message: "success" });
     } catch (e) {
@@ -84,6 +96,7 @@ class ProfileController {
       res.status(400).json({ message: e });
     }
   }
+
   async getPosts(req, res) {
     try {
       const { userId } = req.query;
@@ -113,6 +126,7 @@ class ProfileController {
       res.status(400).json({ message: e });
     }
   }
+
   async getSubscribers(req, res) {
     try {
       const { userId } = req.query;

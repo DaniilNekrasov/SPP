@@ -67,7 +67,13 @@ class DBrequest {
 
   async getPosts(id) {
     return this.executeQuery(
-      () => this.client.post.findMany({ where: { authorId: id } }),
+      () =>
+        this.client.post.findMany({
+          where: { author: { some: { id: id } } },
+          include: {
+            file: true,
+          },
+        }),
       "Getting posts error"
     );
   }
@@ -77,12 +83,18 @@ class DBrequest {
       "Deleting post error"
     );
   }
+  async deleteFiles(id) {
+    return this.executeQuery(
+      () => this.client.file.deleteMany({ where: { postId: id } }),
+      "Deleting files error"
+    );
+  }
   async createPost(id, content, date, title) {
     return this.executeQuery(
       () =>
         this.client.post.create({
           data: {
-            authorId: id,
+            author: { connect: [{ id: id }] },
             content: content,
             date: date,
             title: title,
@@ -91,6 +103,19 @@ class DBrequest {
       "Creating post error"
     );
   }
+
+  async saveFiles(postId, file) {
+    return this.executeQuery(() =>
+      this.client.file.create({
+        data: {
+          postId: postId,
+          filePath: file.path,
+          fileType: file.mimetype,
+        },
+      })
+    );
+  }
+
   async getSubscribes(id) {
     return this.executeQuery(
       () => this.client.subscription.findMany({ where: { subscriberId: id } }),
@@ -192,6 +217,29 @@ class DBrequest {
           },
         }),
       "Creating dialog error"
+    );
+  }
+
+  async getEvents(id) {
+    return this.executeQuery(
+      () => this.client.event.findMany({ where: { userId: id } }),
+      "Getting events error"
+    );
+  }
+  async createEvent(userId, event) {
+    return this.executeQuery(
+      () =>
+        this.client.event.create({
+          data: {
+            userId: userId,
+            public: event.isPublic,
+            title: event.title,
+            startTime: event.start,
+            finishTime: event.end,
+            description: event.description,
+          },
+        }),
+      "Creating event error"
     );
   }
 }

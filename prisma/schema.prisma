@@ -14,7 +14,11 @@ model User {
   status       String
   lastOnline   DateTime       @default(now())
   avatarURL    String?
+  job          String?
+  awards       String?
+  education    String?
   password     String
+  isModer      Boolean        @default(false)
   posts        Post[]
   chat         Chat[]
   comment      Comment[]
@@ -23,6 +27,7 @@ model User {
   postLike     PostLike[]
   subscription Subscription[] @relation("subscriber")
   subscribers  Subscription[] @relation("subscribedTo")
+  event        Event[]
 }
 
 model Post {
@@ -30,10 +35,26 @@ model Post {
   title     String
   content   String?
   published Boolean    @default(false)
-  author    User?      @relation(fields: [authorId], references: [id])
-  authorId  Int?
+  author    User[]
   date      DateTime   @updatedAt
   postLike  PostLike[]
+  Comment   Comment[]
+  keyword   Keyword[]
+  file      File[]
+}
+
+model File {
+  id       Int    @id @default(autoincrement())
+  postId   Int
+  filePath String
+  fileType String
+  post     Post   @relation(fields: [postId], references: [id])
+}
+
+model Keyword {
+  id    Int    @id @default(autoincrement())
+  title String @unique
+  post  Post[]
 }
 
 model Comment {
@@ -43,7 +64,9 @@ model Comment {
   date        DateTime      @updatedAt
   author      User          @relation(fields: [userId], references: [id])
   userId      Int
+  post        Post          @relation(fields: [postId], references: [id])
   commentLike CommentLike[]
+  postId      Int
 }
 
 model CommentLike {
@@ -86,6 +109,17 @@ model Subscription {
   subscribedTo   User @relation("subscribedTo", fields: [subscribedToId], references: [id])
   subscriberId   Int
   subscribedToId Int
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  creator     User     @relation(fields: [userId], references: [id])
+  userId      Int
+  public      Boolean
+  startTime   DateTime
+  finishTime  DateTime
+  title       String
+  description String?
 }
 
 //npx prisma migrate dev --name add-avatarURL
