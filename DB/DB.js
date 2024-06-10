@@ -72,6 +72,8 @@ class DBrequest {
           where: { author: { some: { id: id } } },
           include: {
             file: true,
+            keyword: true,
+            author: true,
           },
         }),
       "Getting posts error"
@@ -85,19 +87,27 @@ class DBrequest {
   }
   async deleteFiles(id) {
     return this.executeQuery(
-      () => this.client.file.deleteMany({ where: { postId: id } }),
+      () => this.client.file.deleteMany({ where: { id: id } }),
       "Deleting files error"
     );
   }
-  async createPost(id, content, date, title) {
+  async createPost(authors, content, date, title, keywords) {
     return this.executeQuery(
       () =>
         this.client.post.create({
           data: {
-            author: { connect: [{ id: id }] },
+            author: {
+              connect: authors.map((authorId) => ({ id: authorId * 1 })),
+            },
             content: content,
             date: date,
             title: title,
+            keyword: {
+              connectOrCreate: keywords.map((keyword) => ({
+                where: { title: keyword },
+                create: { title: keyword },
+              })),
+            },
           },
         }),
       "Creating post error"
@@ -111,6 +121,7 @@ class DBrequest {
           postId: postId,
           filePath: file.path,
           fileType: file.mimetype,
+          origName: file.originalname,
         },
       })
     );
@@ -226,6 +237,7 @@ class DBrequest {
       "Getting events error"
     );
   }
+
   async createEvent(userId, event) {
     return this.executeQuery(
       () =>
@@ -237,9 +249,17 @@ class DBrequest {
             startTime: event.start,
             finishTime: event.end,
             description: event.description,
+            createdAt: new Date(Date.now()).toISOString(),
           },
         }),
       "Creating event error"
+    );
+  }
+
+  async deleteEvent(eventId) {
+    return this.executeQuery(
+      () => this.client.event.delete({ where: { id: eventId } }),
+      "Deleting event error"
     );
   }
 }

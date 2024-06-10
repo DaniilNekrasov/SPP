@@ -19,6 +19,15 @@ class EventController {
       res.status(400).json({ message: e });
     }
   }
+  async deleteEvent(req, res) {
+    try {
+      const { id } = req.query;
+      await DBrequest.deleteEvent(id * 1);
+      res.json({ message: "success" });
+    } catch (e) {
+      res.status(400).json({ message: e });
+    }
+  }
 }
 
 module.exports = new EventController();

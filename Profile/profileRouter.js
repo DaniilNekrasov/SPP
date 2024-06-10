@@ -21,6 +21,9 @@ const postStorage = multer.diskStorage({
     cb(null, "uploads/posts/");
   },
   filename: (req, file, cb) => {
+    file.originalname = Buffer.from(file.originalname, "latin1").toString(
+      "utf8"
+    );
     cb(
       null,
       file.fieldname + "-" + Date.now() + path.extname(file.originalname)

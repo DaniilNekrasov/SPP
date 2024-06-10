@@ -33,6 +33,18 @@ app.listen(PORT, () => {
   console.log(`app listening on port ${PORT}`);
 });
 
+app.use("/download/:filePath", (req, res) => {
+  const filePath = path.join(__dirname, "uploads/posts", req.params.filePath);
+  res.download(filePath, (err) => {
+    if (err) {
+      console.error("Error downloading file:", err);
+      res.status(500).send("Error downloading file");
+    }
+  });
+});
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.get("/user/avatar/:filename", (req, res) => {
   const filename = req.params.filename;
   if (filename) {

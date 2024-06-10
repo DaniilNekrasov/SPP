@@ -48,6 +48,7 @@ model File {
   postId   Int
   filePath String
   fileType String
+  origName String @default("-")
   post     Post   @relation(fields: [postId], references: [id])
 }
 
@@ -120,6 +121,7 @@ model Event {
   finishTime  DateTime
   title       String
   description String?
+  createdAt   DateTime @default(now())
 }
 
 //npx prisma migrate dev --name add-avatarURL

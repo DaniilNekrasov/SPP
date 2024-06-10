@@ -61,18 +61,18 @@ class ProfileController {
   async createPost(req, res) {
     try {
       const userId = req.query.userId;
-      const { title, content, date } = req.body;
+      const { authors, title, content, date, keywords } = req.body;
       const { files } = req;
-      const candidate = await findUser(userId * 1);
+      const candidate = await findUser(authors[0] * 1);
       if (!candidate) {
         return res.status(400).json({ message: "Profile doesnt exist" });
       }
       let post = await DBrequest.createPost(
-        userId * 1,
+        authors,
         content,
         date,
         title,
-        files
+        keywords
       );
       for (const file of files) {
         DBrequest.saveFiles(post.id, file);
