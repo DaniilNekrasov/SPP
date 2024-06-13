@@ -86,6 +86,8 @@ model PostLike {
   userId Int
   post   Post     @relation(fields: [postId], references: [id])
   postId Int
+
+  @@unique([userId, postId], name: "user_post")
 }
 
 model Chat {

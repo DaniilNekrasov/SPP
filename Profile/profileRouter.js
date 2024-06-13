@@ -36,11 +36,14 @@ const profileUpload = multer({ storage: profileStorage });
 const postUpload = multer({ storage: postStorage });
 
 router.put("/status", controller.updateStatus);
+router.put("/posts/rate", controller.updateRate);
+router.put("/info", controller.updateInfo);
 router.get("/status", controller.getStatus);
 router.get("/user", controller.getProfile);
 router.get("/posts", controller.getPosts);
 router.delete("/posts", controller.deletePost);
 router.post("/posts", postUpload.array("files"), controller.createPost);
+router.post("/comments", controller.addComment);
 router.get("/subscribes", controller.getSubscribes);
 router.get("/subscribers", controller.getSubscribers);
 router.post("/photo", profileUpload.single("image"), controller.savePhoto);

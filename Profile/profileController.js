@@ -157,6 +157,50 @@ class ProfileController {
       res.status(400).json({ message: e });
     }
   }
+  async updateInfo(req, res) {
+    try {
+      let { work, awards, education, userId } = req.body;
+      const candidate = await findUser(userId * 1);
+      if (!candidate) {
+        return res.status(400).json({ message: "Profile doesnt exist" });
+      }
+      await DBrequest.updateInfo(work, awards, education, userId * 1);
+      res.json({ message: "success" });
+    } catch (e) {
+      console.log("Updating info error " + e);
+      res.status(400).json({ message: e });
+    }
+  }
+
+  async updateRate(req, res) {
+    try {
+      let { rate, postId, userId } = req.body;
+      rate === 1 ? (rate = true) : rate === 0 ? (rate = null) : (rate = false);
+      const candidate = await findUser(userId * 1);
+      if (!candidate) {
+        return res.status(400).json({ message: "Profile doesnt exist" });
+      }
+      await DBrequest.updateRate(rate, postId, userId);
+      res.json({ message: "Rate added successfully" });
+    } catch (e) {
+      console.log("getting photo error " + e);
+      res.status(400).json({ message: e });
+    }
+  }
+  async addComment(req, res) {
+    try {
+      let { text, postId, userId } = req.body;
+      const candidate = await findUser(userId * 1);
+      if (!candidate) {
+        return res.status(400).json({ message: "Profile doesnt exist" });
+      }
+      await DBrequest.addComment(text, postId, userId);
+      res.json({ message: "Comment added successfully" });
+    } catch (e) {
+      console.log("comment creation error " + e);
+      res.status(400).json({ message: e });
+    }
+  }
 }
 
 module.exports = new ProfileController();

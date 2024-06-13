@@ -74,6 +74,12 @@ class DBrequest {
             file: true,
             keyword: true,
             author: true,
+            postLike: true,
+            Comment: {
+              include: {
+                author: true,
+              },
+            },
           },
         }),
       "Getting posts error"
@@ -111,6 +117,54 @@ class DBrequest {
           },
         }),
       "Creating post error"
+    );
+  }
+  async updateRate(rate, postId, userId) {
+    return this.executeQuery(() =>
+      this.client.postLike.upsert({
+        where: {
+          user_post: {
+            postId: postId,
+            userId: userId,
+          },
+        },
+        update: {
+          rate: rate,
+        },
+        create: {
+          postId: postId,
+          rate: rate,
+          userId: userId,
+        },
+      })
+    );
+  }
+  async updateInfo(work, awards, education, userId) {
+    return this.executeQuery(() =>
+      this.client.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          job: work,
+          awards: awards,
+          education: education,
+        },
+      })
+    );
+  }
+  async addComment(text, postId, userId) {
+    return this.executeQuery(
+      () =>
+        this.client.comment.create({
+          data: {
+            postId: postId,
+            userId: userId,
+            text: text,
+            isDraft: false,
+          },
+        }),
+      "Creating comment error"
     );
   }
 
