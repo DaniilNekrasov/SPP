@@ -60,13 +60,13 @@ class ProfileController {
 
   async createPost(req, res) {
     try {
-      const userId = req.query.userId;
+      // const userId = req.query.userId;
       const { authors, title, content, date, keywords } = req.body;
       const { files } = req;
-      const candidate = await findUser(authors[0] * 1);
-      if (!candidate) {
-        return res.status(400).json({ message: "Profile doesnt exist" });
-      }
+      // const candidate = await findUser(authors[0] * 1);
+      // if (!candidate) {
+      //   return res.status(400).json({ message: "Profile doesnt exist" });
+      // }
       let post = await DBrequest.createPost(
         authors,
         content,
@@ -77,7 +77,9 @@ class ProfileController {
       for (const file of files) {
         DBrequest.saveFiles(post.id, file);
       }
-      let posts = await DBrequest.getPosts(userId * 1);
+      let posts = await DBrequest.getPosts(
+        Array.isArray(authors) ? authors[0] * 1 : authors * 1
+      ); //mistake
       res.json(posts);
     } catch (e) {
       console.log(e);
@@ -146,11 +148,12 @@ class ProfileController {
     try {
       const { userId } = req.body;
       const { file } = req;
-      const candidate = await findUser(userId * 1);
-      if (!candidate) {
+      const user = await findUser(userId * 1);
+      if (!user) {
         return res.status(400).json({ message: "Profile doesnt exist" });
       }
       await DBrequest.savePhoto(file.path, userId * 1);
+      const candidate = await findUser(userId * 1);
       res.json({ candidate, message: "success" });
     } catch (e) {
       console.log("getting photo error " + e);

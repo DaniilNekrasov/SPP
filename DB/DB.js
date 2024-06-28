@@ -93,7 +93,7 @@ class DBrequest {
   }
   async deleteFiles(id) {
     return this.executeQuery(
-      () => this.client.file.deleteMany({ where: { id: id } }),
+      () => this.client.file.deleteMany({ where: { postId: id } }),
       "Deleting files error"
     );
   }
@@ -103,17 +103,22 @@ class DBrequest {
         this.client.post.create({
           data: {
             author: {
-              connect: authors.map((authorId) => ({ id: authorId * 1 })),
+              connect: Array.isArray(authors)
+                ? authors.map((authorId) => ({ id: authorId * 1 }))
+                : { id: authors * 1 },
             },
             content: content,
             date: date,
             title: title,
-            keyword: {
-              connectOrCreate: keywords.map((keyword) => ({
-                where: { title: keyword },
-                create: { title: keyword },
-              })),
-            },
+            keyword:
+              keywords?.length > 0
+                ? {
+                    connectOrCreate: keywords.map((keyword) => ({
+                      where: { title: keyword },
+                      create: { title: keyword },
+                    })),
+                  }
+                : undefined,
           },
         }),
       "Creating post error"
@@ -190,7 +195,10 @@ class DBrequest {
   async getSubscribers(id) {
     return this.executeQuery(
       () =>
-        this.client.subscription.findMany({ where: { subscribedToId: id } }),
+        this.client.subscription.findMany({
+          where: { subscribedToId: id },
+          include: { subscriber: true },
+        }),
       "Getting subscribers error"
     );
   }

@@ -1,4 +1,4 @@
-var expressWs = require("express-ws");
+// var expressWs = require("express-ws");
 const cors = require("cors");
 const express = require("express");
 const { startSocketServer } = require("./Chat/webSocket");
@@ -14,7 +14,7 @@ const app = express();
 const PORT = 3001;
 const jsonBodyMiddleware = express.json();
 
-expressWs(app);
+// expressWs(app);
 app.use(jsonBodyMiddleware);
 app.use(cors());
 app.use("/messages", dialogRouter);

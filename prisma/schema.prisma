@@ -65,7 +65,7 @@ model Comment {
   date        DateTime      @updatedAt
   author      User          @relation(fields: [userId], references: [id])
   userId      Int
-  post        Post          @relation(fields: [postId], references: [id])
+  post        Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
   commentLike CommentLike[]
   postId      Int
 }
@@ -84,7 +84,7 @@ model PostLike {
   rate   Boolean?
   user   User     @relation(fields: [userId], references: [id])
   userId Int
-  post   Post     @relation(fields: [postId], references: [id])
+  post   Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int
 
   @@unique([userId, postId], name: "user_post")
